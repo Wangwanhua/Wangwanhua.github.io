@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>仿黑客帝国文字矩阵效果</title>
+</head>
+<body>
+  <!-- HTML5 <canvas> 元素用于图形的绘制，通过脚本 (通常是JavaScript)来完成. -->
+  <canvas id="q"></canvas> <!-- 创建一个画布 -->
+
+<script type="text/javascript" >
+  var q = document.getElementById('q');//获取画布元素
+  var s = window.screen;  // Screen 对象包含有关客户端显示屏幕的信息。
+
+  //得到浏览器宽度和高度大小,设置为canvas大小。  
+  var width = q.width = s.width;//screen.width 返回显示器屏幕的宽度。
+  var height = q.height = s.height;//screen.height 返回显示屏幕的高度。
+
+  /*
+  Array(256) 相当于new Array(256),也相当于 [256].JavaScript Object实例化可以省略"new"  
+  join(1),是给数组每个元素插入"1"返回一个字符串 Array(256).join(1)输出为"1111111111111..111",256个1  
+  split('')把字符串按字符分隔成数组. letters是256个元素为"1"的数组。  
+  */
+  var letters = Array(256).join(1).split('');
+  console.log(letters);
+  
+
+  var draw = function () {
+    // getContext("2d") 对象是内建的 HTML5 对象，拥有多种绘制路径、矩形、圆形、字符以及添加图像的方法。
+
+    // fillStyle 设置或返回用于填充绘画的颜色、渐变或模式。 
+    q.getContext('2d').fillStyle='rgba(0,0,0,.05)';//.05相当于0.05,是透明度。每一次调用draw都会重画全屏幕，重画次数多了，透明度值越来越高,直到就会全屏黑色  
+
+    // fillRect(x,y,width,height) 绘制"被填充"的矩形。 
+    q.getContext('2d').fillRect(0,0,width,height);//每次画全屏都会盖在先前的文字上，先前出来的文字会越来越模糊。  
+
+    q.getContext('2d').fillStyle='#0F0';//文字的颜色为绿  
+
+
+    /*
+      //JavaScript Array map方法,y_pos是值，index是数组下标  
+      map() 方法返回一个新数组，新数组中的元素为原始数组元素调用函数处理后的值。
+      map() 方法按照原始数组元素顺序依次处理元素。
+    */
+    letters.map(function(y_pos, index){
+      //fromCharCode() 可接受一个指定的 Unicode 值，然后返回一个字符串.(将 Unicode 编码转为字符。) 
+      // Math.random()方法可返回介于 0 ~ 1 之间的一个随机数。
+      // Math.floor()方法执行向下取整计算
+
+      //汉字写法: 
+      // text = String.fromCharCode(3e4+Math.random()*33);//这里3e4代表3x10^4
+      //数字写法:
+      // text = Math.floor(Math.random()*10);
+      //英文字母写法
+      var text = String.fromCharCode(65 + Math.floor(Math.random()*25));
+      //英文数字共存写法:
+      // text = String.fromCharCode(48 + Math.floor(Math.random()*73)); // 10个数字、26个字母大小写都有了
+
+      var x_pos = index * 10;//字符宽度为10  
+       //y_pos为字符，这里自动转化为Number  
+      //  fillText(text,x,y,maxWidth) 在画布上绘制"被填充的"文本。 
+      q.getContext('2d').fillText(text, x_pos, y_pos);
+      /* 
+        整个demo的精髓所在  
+        letters里面每个字符画的位置相对于上次下降10.下降位置到一定位置会返回到0.  
+        而这个一定位置为"758 + Math.random() * 1e4(1e4是1x10^4)",随机的。  
+        所以我们可以看到效果，当字符串第一次到底端的时候，就会有字符先后回到0。参差不齐的下降效果。  
+        当然这不是真正的下降效果，只是在上次画的基础上下面的位置画面已。仔细看是没有掉的感觉的。  
+      */
+      letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+    });
+  };
+  
+  //每隔33毫秒画一次  
+  setInterval(draw, 33);
+</script>
+
+</body>
+</html>
